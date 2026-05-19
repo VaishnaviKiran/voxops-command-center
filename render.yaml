@@ -1,0 +1,57 @@
+# Optional Render Blueprint: Dashboard → New → Blueprint → connect this repo.
+# You can also create each service manually using docs/DEPLOY.md (recommended first time).
+
+databases:
+  - name: voxops-db
+    databaseName: voxops
+    user: voxops
+    plan: free
+
+services:
+  - type: web
+    name: voxops-incident-service
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.incident-service
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: voxops-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: voxops-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: voxops-db
+          property: password
+      - key: VOXOPS_JWT_SECRET
+        generateValue: true
+      - key: VOXOPS_INTERNAL_SERVICE_TOKEN
+        generateValue: true
+      - key: VOXOPS_AI_PROVIDER
+        value: MOCK
+      - key: VOXOPS_EVENTS_ENABLED
+        value: "false"
+
+  - type: web
+    name: voxops-voice-stream-service
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.voice-stream-service
+    healthCheckPath: /actuator/health
+    envVars:
+      # Set after incident-service is live, e.g. https://voxops-incident-service.onrender.com
+      - key: INCIDENT_SERVICE_BASE_URL
+        sync: false
+      - key: VOXOPS_INTERNAL_SERVICE_TOKEN
+        fromService:
+          name: voxops-incident-service
+          type: web
+          envVarKey: VOXOPS_INTERNAL_SERVICE_TOKEN
