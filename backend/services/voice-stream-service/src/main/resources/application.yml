@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 spring:
   application:
@@ -7,7 +7,7 @@ spring:
 
 incident:
   service:
-    base-url: http://localhost:8081
+    base-url: ${INCIDENT_SERVICE_BASE_URL:http://localhost:8081}
     internal-token: ${VOXOPS_INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
 
 management:

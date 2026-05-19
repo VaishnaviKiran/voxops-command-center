@@ -1,0 +1,16 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+management:
+  health:
+    kafka:
+      enabled: false
+
+voxops:
+  events:
+    enabled: false
+
+# Render Postgres requires SSL. Append to SPRING_DATASOURCE_URL if not already present:
+# ?sslmode=require

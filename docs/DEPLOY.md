@@ -68,7 +68,7 @@ This guide deploys:
    | Key | Value |
    |-----|--------|
    | `SPRING_PROFILES_ACTIVE` | `prod` |
-   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://HOST:PORT/voxops` (from Part A) |
+   | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://HOST:PORT/voxops?sslmode=require` (from Part A; **include** `?sslmode=require`) |
    | `SPRING_DATASOURCE_USERNAME` | `voxops` |
    | `SPRING_DATASOURCE_PASSWORD` | (from Render Postgres) |
    | `VOXOPS_JWT_SECRET` | long random string (32+ chars) |
