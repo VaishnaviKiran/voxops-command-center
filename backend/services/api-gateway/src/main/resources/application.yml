@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: incident-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/incidents/**
+        - id: voice-stream-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/voice/**,/ws/voice/**
+        - id: rag-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/knowledge/**,/api/ai/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

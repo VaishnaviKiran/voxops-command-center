@@ -1,0 +1,58 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: incident-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:55432/voxops}
+    username: ${SPRING_DATASOURCE_USERNAME:voxops}
+    password: ${SPRING_DATASOURCE_PASSWORD:voxops}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+voxops:
+  security:
+    jwt-secret: ${VOXOPS_JWT_SECRET:local-dev-secret-change-me-local-dev-secret}
+    token-ttl-minutes: ${VOXOPS_JWT_TTL_MINUTES:480}
+    internal-service-token: ${VOXOPS_INTERNAL_SERVICE_TOKEN:local-dev-internal-token}
+  ai:
+    provider: ${VOXOPS_AI_PROVIDER:MOCK}
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-4o-mini}
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      model: ${ANTHROPIC_MODEL:claude-3-5-sonnet-latest}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:llama3.1}
+  events:
+    enabled: ${VOXOPS_EVENTS_ENABLED:true}
+    topics:
+      incident-created: ${VOXOPS_TOPIC_INCIDENT_CREATED:incident.created}
+      incident-status-changed: ${VOXOPS_TOPIC_INCIDENT_STATUS_CHANGED:incident.status.changed}
+      timeline-created: ${VOXOPS_TOPIC_TIMELINE_CREATED:timeline.event.created}
+      transcript-created: ${VOXOPS_TOPIC_TRANSCRIPT_CREATED:transcript.segment.created}
+      recommendation-created: ${VOXOPS_TOPIC_RECOMMENDATION_CREATED:ai.recommendation.created}
+      postmortem-created: ${VOXOPS_TOPIC_POSTMORTEM_CREATED:postmortem.created}
