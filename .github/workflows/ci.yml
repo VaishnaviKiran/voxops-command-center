@@ -29,7 +29,7 @@ jobs:
           cache: maven
 
       - name: Run incident-service tests
-        run: mvn -pl services/incident-service test
+        run: mvn -pl services/incident-service -am test
 
   frontend-build:
     name: Frontend build
