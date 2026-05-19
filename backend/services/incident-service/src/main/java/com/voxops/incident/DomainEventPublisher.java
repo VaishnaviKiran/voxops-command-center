@@ -7,18 +7,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class DomainEventPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainEventPublisher.class);
 
-    private final KafkaTemplate<String, DomainEvent> kafkaTemplate;
+    private final Optional<KafkaTemplate<String, DomainEvent>> kafkaTemplate;
     private final EventTopicProperties eventTopicProperties;
     private final EventAuditLogService eventAuditLogService;
     private final MeterRegistry meterRegistry;
 
     public DomainEventPublisher(
-            KafkaTemplate<String, DomainEvent> kafkaTemplate,
+            Optional<KafkaTemplate<String, DomainEvent>> kafkaTemplate,
             EventTopicProperties eventTopicProperties,
             EventAuditLogService eventAuditLogService,
             MeterRegistry meterRegistry
@@ -47,7 +49,23 @@ public class DomainEventPublisher {
             return;
         }
 
-        kafkaTemplate.send(topic, key, event)
+        if (kafkaTemplate.isEmpty()) {
+            meterRegistry.counter(
+                    "voxops_kafka_events_total",
+                    "topic", topic,
+                    "event_type", event.eventType(),
+                    "status", EventPublishStatus.FAILED.name()
+            ).increment();
+            eventAuditLogService.markFailed(auditLog.getId(), "Kafka is not configured");
+            LOGGER.warn(
+                    "Kafka publishing enabled but broker client is unavailable: eventType={}, aggregateId={}",
+                    event.eventType(),
+                    event.aggregateId()
+            );
+            return;
+        }
+
+        kafkaTemplate.get().send(topic, key, event)
                 .whenComplete((result, error) -> {
                     if (error != null) {
                         sample.stop(Timer.builder("voxops_kafka_publish_seconds")
