@@ -24,15 +24,27 @@ export function LoginForm() {
         body: JSON.stringify({ email, password })
       });
 
+      const body = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error("Invalid credentials");
+        const message =
+          typeof body.message === "string"
+            ? body.message
+            : response.status === 503
+              ? "Backend is waking up or unreachable. Wait 60 seconds and try again."
+              : "Invalid credentials";
+        throw new Error(message);
       }
 
       router.push("/");
       router.refresh();
     } catch (error) {
       console.error(error);
-      setError("Login failed. Check the demo email and password.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Login failed. Check the demo email and password."
+      );
     } finally {
       setIsSubmitting(false);
     }
