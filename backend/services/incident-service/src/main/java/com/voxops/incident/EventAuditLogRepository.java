@@ -11,4 +11,6 @@ public interface EventAuditLogRepository extends JpaRepository<EventAuditLog, UU
     List<EventAuditLog> findTop20ByOrderByCreatedAtDesc();
 
     long countByStatus(EventPublishStatus status);
+
+    void deleteByAggregateId(UUID aggregateId);
 }

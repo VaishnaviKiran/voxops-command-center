@@ -29,3 +29,27 @@ export async function GET(_request: Request, { params }: RouteContext) {
     }
   });
 }
+
+export async function DELETE(_request: Request, { params }: RouteContext) {
+  const token = getAuthToken();
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const response = await fetch(`${incidentApiBaseUrl}/api/incidents/${params.incidentId}`, {
+    method: "DELETE",
+    headers: authHeaders(token)
+  });
+
+  if (response.status === 204 || response.ok) {
+    return new NextResponse(null, { status: 204 });
+  }
+
+  const body = await response.text();
+  return new NextResponse(body, {
+    status: response.status,
+    headers: {
+      "content-type": response.headers.get("content-type") ?? "application/json"
+    }
+  });
+}

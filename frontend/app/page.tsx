@@ -1,4 +1,5 @@
 import { CreateIncidentForm } from "../components/CreateIncidentForm";
+import { DeleteIncidentButton } from "../components/DeleteIncidentButton";
 import { SessionMenu } from "../components/SessionMenu";
 import Link from "next/link";
 import { authHeaders, canWriteIncidents, requireAuthToken, requireCurrentUser } from "../lib/auth";
@@ -166,17 +167,13 @@ export default async function HomePage() {
             }}
           >
             {incidents.map((incident) => (
-              <Link
+              <div
                 key={incident.id}
-                href={`/incidents/${incident.id}`}
                 style={{
-                  display: "block",
                   border: "1px solid rgba(148, 163, 184, 0.24)",
                   borderRadius: "20px",
                   padding: "24px",
-                  background: "rgba(15, 23, 42, 0.72)",
-                  color: "inherit",
-                  textDecoration: "none"
+                  background: "rgba(15, 23, 42, 0.72)"
                 }}
               >
                 <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
@@ -203,12 +200,22 @@ export default async function HomePage() {
                     {incident.status}
                   </span>
                 </div>
-                <h3 style={{ fontSize: "22px", margin: "0 0 12px" }}>{incident.title}</h3>
-                <p style={{ color: "#cbd5e1", margin: 0 }}>
+                <h3 style={{ fontSize: "22px", margin: "0 0 12px", color: "#f8fafc" }}>{incident.title}</h3>
+                <p style={{ color: "#cbd5e1", margin: "0 0 16px" }}>
                   Started {new Date(incident.startedAt).toLocaleString()}
                 </p>
-                <p style={{ color: "#93c5fd", fontWeight: 700, marginBottom: 0 }}>Open incident room</p>
-              </Link>
+                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                  <Link
+                    href={`/incidents/${incident.id}`}
+                    style={{ color: "#93c5fd", fontWeight: 700, textDecoration: "none" }}
+                  >
+                    Open incident room
+                  </Link>
+                  {canWrite ? (
+                    <DeleteIncidentButton incidentId={incident.id} title={incident.title} />
+                  ) : null}
+                </div>
+              </div>
             ))}
           </div>
         )}

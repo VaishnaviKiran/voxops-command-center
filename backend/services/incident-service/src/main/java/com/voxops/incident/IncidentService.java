@@ -114,6 +114,15 @@ public class IncidentService {
         return IncidentResponse.from(incident);
     }
 
+    @Transactional
+    public void deleteIncident(UUID incidentId) {
+        if (!incidentRepository.existsById(incidentId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Incident not found");
+        }
+        eventAuditLogRepository.deleteByAggregateId(incidentId);
+        incidentRepository.deleteById(incidentId);
+    }
+
     private void validateTransition(IncidentStatus previousStatus, IncidentStatus nextStatus) {
         boolean isValid = switch (previousStatus) {
             case OPEN -> nextStatus == IncidentStatus.MITIGATING || nextStatus == IncidentStatus.RESOLVED;
