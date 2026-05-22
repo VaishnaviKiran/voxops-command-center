@@ -16,6 +16,7 @@ public class IncidentService {
 
     private final IncidentRepository incidentRepository;
     private final TimelineEventRepository timelineEventRepository;
+    private final EventAuditLogRepository eventAuditLogRepository;
     private final DomainEventPublisher domainEventPublisher;
     private final EventTopicProperties eventTopicProperties;
     private final MeterRegistry meterRegistry;
@@ -23,12 +24,14 @@ public class IncidentService {
     public IncidentService(
             IncidentRepository incidentRepository,
             TimelineEventRepository timelineEventRepository,
+            EventAuditLogRepository eventAuditLogRepository,
             DomainEventPublisher domainEventPublisher,
             EventTopicProperties eventTopicProperties,
             MeterRegistry meterRegistry
     ) {
         this.incidentRepository = incidentRepository;
         this.timelineEventRepository = timelineEventRepository;
+        this.eventAuditLogRepository = eventAuditLogRepository;
         this.domainEventPublisher = domainEventPublisher;
         this.eventTopicProperties = eventTopicProperties;
         this.meterRegistry = meterRegistry;
