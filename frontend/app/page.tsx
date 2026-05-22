@@ -20,7 +20,12 @@ type Incident = {
   startedAt: string;
 };
 
-async function getIncidents(): Promise<Incident[]> {
+type IncidentLoadResult = {
+  incidents: Incident[];
+  loadFailed: boolean;
+};
+
+async function getIncidents(): Promise<IncidentLoadResult> {
   const apiBaseUrl = process.env.INCIDENT_API_BASE_URL ?? "http://localhost:8081";
   const token = requireAuthToken();
 
@@ -34,17 +39,17 @@ async function getIncidents(): Promise<Incident[]> {
       throw new Error(`Incident API returned ${response.status}`);
     }
 
-    return response.json();
+    return { incidents: await response.json(), loadFailed: false };
   } catch (error) {
     console.error("Failed to load incidents", error);
-    return [];
+    return { incidents: [], loadFailed: true };
   }
 }
 
 export default async function HomePage() {
   const currentUser = requireCurrentUser();
   const canWrite = canWriteIncidents(currentUser.role);
-  const incidents = await getIncidents();
+  const { incidents, loadFailed } = await getIncidents();
 
   return (
     <main style={{ padding: "64px", maxWidth: "1120px", margin: "0 auto" }}>
@@ -144,7 +149,7 @@ export default async function HomePage() {
           </div>
         )}
 
-        {incidents.length === 0 ? (
+        {loadFailed ? (
           <div
             style={{
               marginTop: "20px",
@@ -155,7 +160,21 @@ export default async function HomePage() {
               color: "#fecaca"
             }}
           >
-            No incidents loaded. Make sure the incident service is running on port 8081.
+            Could not load incidents. Wake Render first: open voxops-incident-service /actuator/health until
+            status is UP, then refresh this page.
+          </div>
+        ) : incidents.length === 0 ? (
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "24px",
+              border: "1px solid rgba(148, 163, 184, 0.24)",
+              borderRadius: "20px",
+              background: "rgba(15, 23, 42, 0.72)",
+              color: "#cbd5e1"
+            }}
+          >
+            No incidents yet. Create one below for a clean demo.
           </div>
         ) : (
           <div
